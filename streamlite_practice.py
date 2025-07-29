@@ -43,7 +43,27 @@ st.subheader("-developed by Krishna Kumar M")
 
 #Show full table 
 st.header("TRAFFIC POLICE LOGS - OVERVIEW")
-query = "select * from traffic_stops where COUNTRY = 'INDIA'"
+query = "select * from stop_details where country_name = 'INDIA'"
 result_data = db_fetch_info(query)
-#st.dataframe("Key Metrics")	
+
 st.dataframe(result_data)	
+st.subheader("Key Metrics")	
+
+col1, col2, col3, col4 = st.columns(4)
+
+with col1:
+	total_stops = result_data.shape[0]
+	st.metric("Total Police Stops",total_stops)
+	
+with col2:
+	arrests = result_data[result_data[6].str.contains("ARREST", case=False, na=False)].shape[0]
+	st.metric("Total Arrests",arrests)
+	
+with col3:
+	warnings = result_data[result_data[6].str.contains("WARNING",case=False, na=False)].shape[0]
+	st.metric("Total Warnings",warnings)
+	
+with col4:
+	drug_related = result_data[result_data[7] == 1].shape[0]
+	st.metric("Total Drug related stops",drug_related)
+	
