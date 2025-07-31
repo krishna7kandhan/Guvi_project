@@ -2,6 +2,8 @@ import psycopg2
 import pandas as pd 
 import streamlit as st 
 import plotly.express as px
+#import numpy as np
+import matplotlib.pyplot as plt
 
 #Postgresql Database connection 			
 def db_connection():
@@ -56,7 +58,104 @@ result_dis = db_fetch_info(query)
 #result_data = result.data
 columns = ['country_name', 'driver_gender','driver_age','driver_race','violation','search_conducted','search_type','stop_outcome','is_arrested','stop_duration','drugs_related_stop','vehicle_number','stop_datetime']
 result_data = pd.DataFrame(result_dis, columns = columns)
-st.write(result_data)
+# style
+#th_props = [
+# ('font-size', '14px'),
+# ('text-align', 'center'),
+#  ('font-weight', 'bold'),
+# ('color', '#6d6d6d'),
+#  ('background-color', '#f7ffff')
+# ]
+                               
+#td_props = [
+ # ('font-size', '12px')
+# ]
+                                 
+#styles = [
+#  dict(selector="th", props=th_props),
+# dict(selector="td", props=td_props)
+ #]
+
+#result_info = result_info.style.set_properties(**{'text-align': 'left'}).set_table_styles(styles)
+#result_data = st.table(result_info) 
+result_data = st.data_editor(
+    result_data,
+    column_config={
+        "driver_age": st.column_config.NumberColumn(
+            "driver_age",
+            help="Age of the driver stopped by police",
+            min_value=16,
+            max_value=100,
+            step=1,
+            format="%d",
+        ),
+		"country_name": st.column_config.SelectboxColumn(
+            "country_name",
+            help="The country where incident actually happened",
+            width="small",
+            options=["CANADA","INDIA","OTHER","USA"],
+            required=True,
+        ),
+		"driver_race": st.column_config.SelectboxColumn(
+            "driver_race",
+            help="Race of the driver",
+            width="small",
+            options=["ASIAN","BLACK","HISPANIC","OTHER","WHITE"],
+            required=True,
+        ),
+		"violation": st.column_config.SelectboxColumn(
+            "violation",
+            help="Violation type",
+            width="small",
+            options=["DUI","OTHER","SPEEDING","SIGNAL","SEATBELT"],
+            required=True,
+        ),
+		"search_type": st.column_config.SelectboxColumn(
+            "search_type",
+            help="Type of search police conducted",
+            width="small",
+            options=["FRISK","VEHICLE SEARCH"],
+            required=True,
+        ),
+		"stop_outcome": st.column_config.SelectboxColumn(
+            "stop_outcome",
+            help="Outcome of the stop",
+            width="small",
+            options=["ARREST","TICKET","WARNING"],
+            required=True,
+        ),
+		"stop_datetime": st.column_config.DatetimeColumn(
+            "stop_datetime",
+            help="Stop date time",
+            width="medium"
+        ),
+		"search_conducted": st.column_config.CheckboxColumn(
+            "search_conducted",
+            help="whether search was conducted or not.Checked box says search was conducted",
+            default=False,
+        ),
+		"is_arrested": st.column_config.CheckboxColumn(
+            "is_arrested",
+            help="whether driver was arrested or not.Checked box says driver was arrested",
+            default=False,
+        ),
+		"drugs_related_stop": st.column_config.CheckboxColumn(
+            "drugs_related_stop",
+            help="whether driver was drugged or not.Checked box says driver was drugged",
+            default=False,
+        ),
+		"stop_duration": st.column_config.NumberColumn(
+            "stop_duration",
+            help="duration of the stop/search conducted by police",
+            min_value=15,
+            max_value=60,
+            step=15,
+            format="%d",
+        )
+    },
+    hide_index=True,
+)
+#st.write(result_data)
 st.markdown("***Key Metrics***")	
 
 col1, col2, col3, col4 = st.columns(4)
@@ -64,6 +163,13 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
 	total_stops = result_data.shape[0]
 	st.metric("Total Police Stops",total_stops)
+	#plt.figure(figsize=(5, 2))
+	#plt.hist(total_stops, bins=500, color='blue', edgecolor='white')
+	#plt.title('Total Stops')
+	#plt.xlabel('Value')
+	#plt.ylabel('stop count')
+	#plt.legend()
+	#plt.show()
 	
 with col2:
 	arrests = result_data[result_data['stop_outcome'].str.contains("ARREST", case=False, na=False)].shape[0]
