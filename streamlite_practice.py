@@ -139,17 +139,17 @@ st.markdown("***Custom Natural Language Filter***")
 st.markdown("Fill in the details below to get the natural Language prediction of the stop outcome based on existing data.")
 st.markdown("Add New Policies Log & Predict Outcome and violation")
 #Input form for all fields (excluding output)
-with st.form("new_log_form"):
-    country_name = st.text_input("Country_Name")
-    driver_gender = st.selectbox("Driver_Gender", ["Male", "Female"])
-    driver_age = st.number_input("Driver_Age", min_value=16, max_value=100, value=27)
-    driver_race = st.text_input("Driver_Race")
-    search_conducted = st.selectbox("Search Conducted?", [1, 0])
-    search_type = st.text_input("Search_Type")
-    drugs_related_stop = st.selectbox("Drug Related?", [1, 0])
-    stop_duration = st.selectbox("Stop_Duration", result_data['stop_duration'].dropna().unique())
-    vehicle_number = st.text_input("Vehicle_Number")
-    stop_datetime = st.date_input("Stop_Datetime")
+with st.form("create_form"):
+    country_name = st.selectbox("Country Name", result_data['country_name'].dropna().unique())
+    driver_gender = st.selectbox("Driver Gender", ["Male", "Female"])
+    driver_age = st.number_input("Driver Age", min_value=16, max_value=100, value=27)
+    driver_race = st.selectbox("Driver Race", result_data['driver_race'].dropna().unique())
+    search_conducted = st.selectbox("Search Conducted?", ["Yes", "No"])
+    search_type = st.selectbox("Search Type", result_data['search_type'].dropna().unique())
+    drugs_related_stop = st.selectbox("Drug Related?", ["Yes", "No"])
+    stop_duration = st.selectbox("Stop Duration (in Min)", result_data['stop_duration'].dropna().unique())
+    vehicle_number = st.text_input("Vehicle Number")
+    stop_datetime = st.date_input("Stop Datetime")
     timestamp = pd.Timestamp.now()
 
     submit_form = st.form_submit_button("Predict Stop Outcome & Violation")
@@ -172,16 +172,19 @@ if submit_form:
 
 		
     #Natural Language Summary
-    search_text = "A search was conducted" if (search_conducted) else "No Search was Conducted" 
-    drug_text = "Was Drug Related" if (drugs_related_stop) else "No Drug related stop" 
-	
-    st.markdown(f"""
-            **prediction summary** 
-            **Predicted Violation:** {predicted_violation}
-            **Predicted Stop Outcome:** {predicted_outcome}
+    search_text = "A search was conducted" if search_conducted else "No Search was Conducted"
+    drug_text = "Was Drug Related" if drugs_related_stop else "Was No Drug Related"
 
-            A {driver_age} year old {driver_gender} driver from {country_name} was stopped at {stop_datetime.strftime('%I:%M:%p')}
-            for {search_text} and the stop {drug_text}.
-            stop Duration : **{stop_duration}**
-            Vehicle Number: **{vehicle_number}**
-            """)
+    st.markdown(":blue[TRAFFIC LOG PREDICTION SUMMARY]")
+    st.markdown(f"&nbsp;&nbsp;:green[Predicted Violation:] :red[{predicted_violation}]")
+    st.markdown(f"&nbsp;&nbsp;:green[Predicted Stop Outcome:] :red[{predicted_outcome}]")
+    st.markdown("  \n  \n")
+
+    st.markdown(f"&ensp;&ensp;:blue[A ]:orange[ {driver_age}]:blue[ year old ]:orange[ {driver_gender}]:blue[ driver from]:orange[ {country_name}]:blue[ was stopped at] :orange[ {stop_datetime.strftime('%I:%M:%p')}]")
+    st.markdown(f"&ensp;&ensp;:orange[{search_text}]:blue[ and the stop]:orange[ {drug_text}.]")
+    st.markdown("  \n  \n")
+
+    st.markdown(f"&emsp;:blue[Stop Duration: ]:orange[ {stop_duration}]")
+    st.markdown(f"&emsp;:blue[Vehicle Number: ]:orange[ {vehicle_number}]")
+
+                     
