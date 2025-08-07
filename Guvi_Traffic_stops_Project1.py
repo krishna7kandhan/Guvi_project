@@ -206,23 +206,34 @@ selected_query = st.selectbox(":green[select a query to run]",[
 "Most common Violation for Arrests"])
 
 query_map = {
-    "Total Number of Police Stops": "SELECT COUNT(*) AS STOP_COUNTS FROM stop_logs",
-    "Count of Stops by Violation Types": "SELECT violation, COUNT(*) AS VIOLATION_COUNTS FROM stop_logs GROUP BY violation ORDER BY count DESC",
-    "Number of Arrests Vs Warnings": "SELECT stop_outcome, COUNT(*) AS STOP_COUNTS FROM stop_logs GROUP BY stop_outcome",
+    "Total Number of Police Stops": "SELECT count(*) AS STOP_COUNTS FROM stop_logs",
+    "Count of Stops by Violation Types": "SELECT violation, count(*) AS VIOLATION_COUNTS FROM stop_logs GROUP BY violation ORDER BY VIOLATION_COUNTS DESC",
+    "Number of Arrests Vs Warnings": "SELECT stop_outcome, count(*) AS STOP_COUNTS FROM stop_logs GROUP BY stop_outcome",
     "Average age of Drivers stopped": "SELECT floor(AVG(driver_age)) AS AVERAGE_AGE FROM stop_logs",
-    "Top 5 most frequent search types": "SELECT search_type, COUNT(*) AS SEARCH_COUNTS FROM stop_logs WHERE search_type != '' GROUP BY search_type ORDER BY count DESC LIMIT 5",
-    "Count of Stops by Gender": "SELECT driver_gender, COUNT(*) AS GENDER_COUNTS FROM stop_logs GROUP BY driver_gender",
-    "Most common Violation for Arrests": "SELECT violation, COUNT(*) AS VIOLATION_COUNTS FROM stop_logs WHERE stop_outcome LIKE '%ARREST%' GROUP BY violation ORDER BY count DESC LIMIT 1"
+    "Top 5 most frequent search types": "SELECT search_type, count(*) AS SEARCH_COUNTS FROM stop_logs WHERE search_type != '' GROUP BY search_type ORDER BY SEARCH_COUNTS DESC LIMIT 5",
+    "Count of Stops by Gender": "SELECT driver_gender, count(*) AS GENDER_COUNTS FROM stop_logs GROUP BY driver_gender",
+    "Most common Violation for Arrests": "SELECT violation, count(*) AS VIOLATION_COUNTS FROM stop_logs WHERE stop_outcome LIKE '%ARREST%' GROUP BY violation ORDER BY VIOLATION_COUNTS DESC LIMIT 1"
+}
+
+query_map4 = {
+     "SELECT count(*) AS STOP_COUNTS FROM stop_logs" : ['STOP_COUNTS'],
+     "SELECT violation, count(*) AS VIOLATION_COUNTS FROM stop_logs GROUP BY violation ORDER BY VIOLATION_COUNTS DESC" : ['VIOLATION','VIOLATION_COUNTS'],
+     "SELECT stop_outcome, count(*) AS STOP_COUNTS FROM stop_logs GROUP BY stop_outcome" : ['STOP_OUTCOME','STOP_COUNTS'],
+     "SELECT floor(AVG(driver_age)) AS AVERAGE_AGE FROM stop_logs" : ['AVERAGE_AGE'],
+     "SELECT search_type, count(*) AS SEARCH_COUNTS FROM stop_logs WHERE search_type != '' GROUP BY search_type ORDER BY SEARCH_COUNTS DESC LIMIT 5" : ['SEARCH_TYPE','SEARCH_COUNTS'],
+     "SELECT driver_gender, count(*) AS GENDER_COUNTS FROM stop_logs GROUP BY driver_gender" : ['DRIVER_GENDER','GENDER_COUNTS'],
+     "SELECT violation, count(*) AS VIOLATION_COUNTS FROM stop_logs WHERE stop_outcome LIKE '%ARREST%' GROUP BY violation ORDER BY VIOLATION_COUNTS DESC LIMIT 1" : ['VIOLATION','VIOLATION_COUNTS']
 }
 
 if st.button("Run Query"):
-	user_query = query_map[selected_query]
-	result = db_fetch_info(user_query)
-	result_out = pd.DataFrame(result)
-	if not result_out.empty:
-		st.write(result_out)
-	else:
-		st.error(":red[No Result Found for Selected Query]")
+    user_query = query_map[selected_query]
+    result = db_fetch_info(user_query)
+    columns = query_map4.get(user_query,[])
+    result_out = pd.DataFrame(result, columns = columns)
+    if not result_out.empty:
+        st.write(result_out)
+    else:
+        st.error(":red[No Result Found for Selected Query]")
 		
 
 #QUERY Categories and respective results:
